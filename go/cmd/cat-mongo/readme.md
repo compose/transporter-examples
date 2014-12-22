@@ -2,7 +2,13 @@
 
 Runs a cat operations on a MongoDB collection.
 
-cat-mongo -s **MONGOURI** -ns **NAMESPACE** -o **TRUE/FALSE**
+## Command
+
+```
+cat-mongo -s MONGOURI -ns NAMESPACE -o TRUE/FALSE
+```
+
+## Flags
 
 * -s   MongoDB URI to connect to - defaults to localhost
 * -ns  The name space to cat - defaults to ""
