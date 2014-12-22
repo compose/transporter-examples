@@ -3,11 +3,19 @@
 Reads the Twitter public* stream taking each message from the API and sending the resulting
 JSON document on to MongoDB
 
-twitter -s MONGOURI -dest-ns NAMESPACE -o TRUE/FALSE
+## Command
 
--d        MongoDB URI to write to - defaults to localhost
--dest-ns  The name space to cat - defaults to ""
--v        If present, dump all documents to stdout
+```
+twitter -s MONGOURI -dest-ns NAMESPACE -o TRUE/FALSE
+```
+
+## Flags
+
+* `-d`        MongoDB URI to write to - defaults to localhost
+* `-dest-ns`  The name space to cat - defaults to ""
+* `-v`        If present, dump all documents to stdout
+
+## Notes
 
 IMPORTANT:
 
