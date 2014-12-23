@@ -1,0 +1,8 @@
+nodes:
+  infile:
+    type: file
+    uri: file:///tmp/foo
+    hint: array
+  outfile:
+    type: mongo
+    uri: mongodb://username:password@host:port/database

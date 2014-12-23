@@ -1,0 +1,8 @@
+nodes:
+  infile:
+    type: file
+    uri: file:///tmp/foo
+    hint: array
+  outfile:
+    type: file
+    uri: file:///tmp/foo2

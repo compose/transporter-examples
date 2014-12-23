@@ -1,0 +1,7 @@
+nodes:
+  infile:
+    type: mongo
+    uri: mongodb://username:password@host:port/database
+  outfile:
+    type: file
+    uri: file:///tmp/foo3
