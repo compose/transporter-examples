@@ -26,6 +26,7 @@ var (
 	sourceDB      = flag.String("source-db", "", "the source namespace to copy")
 	destinationDB = flag.String("dest-db", "", "the destination namespace")
 	debug         = flag.Bool("v", false, "debug, dumps all the documents to stdout")
+	bulk          = flag.Bool("bulk", false, "bulk insert into the destination mongo")
 )
 
 func init() {
@@ -62,7 +63,7 @@ func main() {
 
 		source :=
 			transporter.NewNode("source", "mongo", map[string]interface{}{"uri": *sourceUri, "namespace": srcNamespace, "tail": false}).
-				Add(transporter.NewNode("out", "mongo", map[string]interface{}{"uri": *destUri, "namespace": destNamespace}))
+				Add(transporter.NewNode("out", "mongo", map[string]interface{}{"uri": *destUri, "namespace": destNamespace, "bulk": *bulk}))
 
 		if *debug {
 			source.Add(transporter.NewNode("out", "file", map[string]interface{}{"uri": "stdout://"}))
