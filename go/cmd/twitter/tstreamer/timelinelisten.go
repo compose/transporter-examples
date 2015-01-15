@@ -29,7 +29,7 @@ func New(endpoint, consumerKey, consumerSecret, accessToken, accessTokenSecret s
 		map[string]string{},
 	)
 	tl.response = response
-	tl.stream = make(chan Tweet)
+	tl.stream = make(chan Tweet, 1024*100)
 	return
 }
 
@@ -42,11 +42,11 @@ func (tl *TimelineListen) Listen() <-chan Tweet {
 			if ok := scanner.Scan(); !ok {
 				log.Println(scanner.Err())
 				return
-				//continue
 			}
 			status := new(Tweet)
 
 			if err := json.Unmarshal(scanner.Bytes(), &status.Content); err != nil {
+				log.Println(err)
 				log.Println("(abort)")
 				continue
 			}
