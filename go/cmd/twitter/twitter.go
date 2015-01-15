@@ -49,7 +49,7 @@ var (
 
 func main() {
 	// register our custom adaptor so that it's available to Transporter
-	adaptor.Register("twitter", NewTwitter)
+	adaptor.Register("twitter", "An adaptor that listens to Twitter", NewTwitter, TwitterConfig{})
 
 	ck, cs, at, ats := readConf()
 
