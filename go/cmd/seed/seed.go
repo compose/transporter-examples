@@ -62,14 +62,14 @@ func main() {
 		destNamespace := fmt.Sprintf("%s.%s", *destinationDB, name)
 
 		source :=
-			transporter.NewNode("source", "mongo", map[string]interface{}{"uri": *sourceUri, "namespace": srcNamespace, "tail": false}).
-				Add(transporter.NewNode("out", "mongo", map[string]interface{}{"uri": *destUri, "namespace": destNamespace, "bulk": *bulk}))
+			transporter.NewNode(fmt.Sprintf("source-%s", srcNamespace), "mongo", map[string]interface{}{"uri": *sourceUri, "namespace": srcNamespace, "tail": false}).
+				Add(transporter.NewNode(fmt.Sprintf("dest-%s", destNamespace), "mongo", map[string]interface{}{"uri": *destUri, "namespace": destNamespace, "bulk": *bulk}))
 
 		if *debug {
 			source.Add(transporter.NewNode("out", "file", map[string]interface{}{"uri": "stdout://"}))
 		}
 
-		pipeline, err := transporter.NewPipeline(source, events.NewLogEmitter(), 1*time.Second)
+		pipeline, err := transporter.NewPipeline(source, events.NewJsonLogEmitter(), 1*time.Second)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
