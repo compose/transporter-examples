@@ -10,8 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
-	"sync"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -40,50 +38,34 @@ func main() {
 		fmt.Println("Can't connect: " + err.Error())
 		os.Exit(1)
 	}
+	sess.Close()
 
-	names, err := sess.DB(*sourceDB).CollectionNames()
-	if err != nil {
-		fmt.Println("Error: " + err.Error())
-	}
-
-	if *sourceDB == "" || *destinationDB == "" || len(names) == 0 {
-		fmt.Fprintln(os.Stderr, "No collections to copy, exiting")
+	if *sourceDB == "" || *destinationDB == "" {
+		fmt.Fprintln(os.Stderr, "source and destination database must be provided, exiting")
 		os.Exit(1)
 	}
 
-	wg := sync.WaitGroup{}
-	for _, name := range names {
+	srcNamespace := fmt.Sprintf("%s./.*/", *sourceDB)
+	destNamespace := fmt.Sprintf("%s./.*/", *destinationDB)
 
-		if strings.HasPrefix(name, "system.") {
-			continue
-		}
+	source :=
+		transporter.NewNode(fmt.Sprintf("source-%s", *sourceDB), "mongo", map[string]interface{}{"uri": *sourceUri, "namespace": srcNamespace, "tail": false}).
+			Add(transporter.NewNode(fmt.Sprintf("dest-%s", *destinationDB), "mongo", map[string]interface{}{"uri": *destUri, "namespace": destNamespace, "bulk": *bulk}))
 
-		srcNamespace := fmt.Sprintf("%s.%s", *sourceDB, name)
-		destNamespace := fmt.Sprintf("%s.%s", *destinationDB, name)
-
-		source :=
-			transporter.NewNode(fmt.Sprintf("source-%s", srcNamespace), "mongo", map[string]interface{}{"uri": *sourceUri, "namespace": srcNamespace, "tail": false}).
-				Add(transporter.NewNode(fmt.Sprintf("dest-%s", destNamespace), "mongo", map[string]interface{}{"uri": *destUri, "namespace": destNamespace, "bulk": *bulk}))
-
-		if *debug {
-			source.Add(transporter.NewNode("out", "file", map[string]interface{}{"uri": "stdout://"}))
-		}
-
-		pipeline, err := transporter.NewPipeline(source, events.NewJsonLogEmitter(), 1*time.Second)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-		wg.Add(1)
-		go func() {
-			pipeline.Run()
-			if pipeline.Err != nil {
-				fmt.Fprintf(os.Stderr, "Pipeline Errored with %v\n", pipeline.Err)
-				os.Exit(1)
-			}
-			wg.Done()
-		}()
+	if *debug {
+		source.Add(transporter.NewNode("out", "file", map[string]interface{}{"uri": "stdout://"}))
 	}
-	wg.Wait()
+
+	pipeline, err := transporter.NewPipeline(source, events.NewJsonLogEmitter(), 2*time.Second, nil, 10*time.Second)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	pipeline.Run()
+	if pipeline.Err != nil {
+		fmt.Fprintf(os.Stderr, "Pipeline Errored with %v\n", pipeline.Err)
+		os.Exit(1)
+	}
 	fmt.Println("Complete")
 }
