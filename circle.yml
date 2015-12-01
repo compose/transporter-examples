@@ -1,0 +1,21 @@
+machine:
+  environment:
+    GOBIN: "$CIRCLE_ARTIFACTS"
+
+dependencies:
+  override:
+    - go get github.com/tools/godep
+    - test -d /home/ubuntu/.go_workspace/src/github.com/compose/ || mkdir -p /home/ubuntu/.go_workspace/src/github.com/compose/
+    - test -e /home/ubuntu/.go_workspace/src/github.com/compose/transporter || ln -s /home/ubuntu/transporter/ /home/ubuntu/.go_workspace/src/github.com/compose/
+    - test -e /home/ubuntu/.go_workspace/src/github.com/compose/transporter-examples || ln -s /home/ubuntu/transporter-examples/ /home/ubuntu/.go_workspace/src/github.com/compose/
+    - cd /home/ubuntu/.go_workspace/src/github.com/compose/transporter && $CIRCLE_ARTIFACTS/godep restore
+
+test:
+  override:
+    - $CIRCLE_ARTIFACTS/godep go test ./... -tags=integration -v
+
+deployment:
+  default:
+    branch: [master]
+    commands:
+      - cd /home/ubuntu/.go_workspace/src/github.com/compose/transporter-examples/go/cmd/seed && goxc -os="linux,darwin" -arch="amd64"
