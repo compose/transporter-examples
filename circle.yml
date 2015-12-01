@@ -5,6 +5,7 @@ machine:
 dependencies:
   override:
     - go get github.com/tools/godep
+    - cd /home/ubuntu && git clone git@github.com:compose/transporter.git
     - test -d /home/ubuntu/.go_workspace/src/github.com/compose/ || mkdir -p /home/ubuntu/.go_workspace/src/github.com/compose/
     - test -e /home/ubuntu/.go_workspace/src/github.com/compose/transporter || ln -s /home/ubuntu/transporter/ /home/ubuntu/.go_workspace/src/github.com/compose/
     - test -e /home/ubuntu/.go_workspace/src/github.com/compose/transporter-examples || ln -s /home/ubuntu/transporter-examples/ /home/ubuntu/.go_workspace/src/github.com/compose/
